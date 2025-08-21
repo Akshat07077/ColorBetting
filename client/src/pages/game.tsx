@@ -67,6 +67,7 @@ export default function GamePage() {
             <BettingArea 
               currentRound={gameState?.currentRound}
               userBalance={userData?.user?.balance}
+              timeLeft={gameState?.timeLeft || 0}
             />
             
             <CurrentBets 

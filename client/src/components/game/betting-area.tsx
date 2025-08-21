@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 interface BettingAreaProps {
   currentRound?: GameRound;
   userBalance?: string;
+  timeLeft?: number;
 }
 
 const colorConfig = {
@@ -19,7 +20,7 @@ const colorConfig = {
   orange: "bg-bet-orange hover:bg-bet-orange/80",
 };
 
-export default function BettingArea({ currentRound, userBalance }: BettingAreaProps) {
+export default function BettingArea({ currentRound, userBalance, timeLeft }: BettingAreaProps) {
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [customAmount, setCustomAmount] = useState<string>("");
   const { toast } = useToast();
@@ -73,10 +74,10 @@ export default function BettingArea({ currentRound, userBalance }: BettingAreaPr
       return;
     }
 
-    if (currentRound?.status !== "betting") {
+    if (currentRound?.status !== "betting" || (timeLeft && timeLeft <= 5)) {
       toast({
         title: "Betting Closed",
-        description: "Betting is not currently open",
+        description: timeLeft && timeLeft <= 5 ? "Betting period ended - finalizing transactions" : "Betting is not currently open",
         variant: "destructive",
       });
       return;
@@ -90,7 +91,7 @@ export default function BettingArea({ currentRound, userBalance }: BettingAreaPr
     setCustomAmount("");
   };
 
-  const isBettingOpen = currentRound?.status === "betting";
+  const isBettingOpen = currentRound?.status === "betting" && (timeLeft === undefined || timeLeft > 5);
 
   return (
     <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-electric-blue/30 p-6">
@@ -158,7 +159,7 @@ export default function BettingArea({ currentRound, userBalance }: BettingAreaPr
         {!isBettingOpen && (
           <div className="text-center text-yellow-400 text-sm font-medium">
             <i className="fas fa-exclamation-triangle mr-2"></i>
-            Betting is currently closed
+            {timeLeft && timeLeft <= 5 && timeLeft > 0 ? "Finalizing transactions - betting closed" : "Betting is currently closed"}
           </div>
         )}
       </div>

@@ -4,6 +4,12 @@
 
 ColorPredict is a real-time betting game application where players can place bets on color predictions during timed rounds. The system features live game rounds with countdown timers, color-based betting mechanics, and real-time balance updates. Players can bet on five different colors (red, green, blue, purple, orange) with a 2x payout multiplier for winning bets.
 
+**Key Features:**
+- 30-second game rounds with intelligent betting phases
+- Betting closes at 25 seconds with 5-second transaction finalization period
+- PostgreSQL database persistence for all game data
+- Real-time UI updates with smart status indicators
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -26,13 +32,17 @@ Preferred communication style: Simple, everyday language.
 - **Session Management**: Express sessions with PostgreSQL session store (connect-pg-simple)
 
 ### Data Storage Solutions
-- **Development Storage**: In-memory Map-based storage for rapid prototyping
-- **Database Schema**: Drizzle ORM with PostgreSQL schema definitions for users, game rounds, and bets
-- **Migration System**: Drizzle Kit for database migrations and schema management
-- **Connection**: Neon Database serverless PostgreSQL for production deployment
+- **Production Storage**: PostgreSQL database with Drizzle ORM for all persistent data
+- **Database Schema**: Complete schema for users, game rounds, and bets with proper relationships
+- **Migration System**: Drizzle Kit for database migrations and schema management  
+- **Connection**: Neon Database serverless PostgreSQL with automated initialization
+- **Data Integrity**: All game rounds, user bets, and balance changes persisted to database
 
 ### Game Mechanics
-- **Round System**: 30-second betting rounds with automated state transitions (betting → closed → finished)
+- **Round System**: 30-second total rounds with smart phases:
+  - 0-25 seconds: Active betting period
+  - 25-28 seconds: "Wrapping Up" - betting closed, transactions finalizing
+  - 28-30 seconds: "Processing" - results calculation and new round preparation
 - **Betting Logic**: Players can bet on 5 colors with 2x multiplier for wins
 - **Balance Management**: Real-time balance updates with win/loss calculations
 - **Statistics Tracking**: Player stats including games played, win rate, total winnings, and favorite colors

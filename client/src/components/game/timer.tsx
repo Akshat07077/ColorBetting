@@ -9,10 +9,12 @@ export default function Timer({ currentRound, timeLeft }: TimerProps) {
   const getStatusConfig = (status?: string, timeLeft?: number) => {
     if (!status) return { text: "Loading...", className: "bg-gray-500/20 text-gray-400 border-gray-500/30" };
     
-    if (status === "betting" && (timeLeft || 0) > 0) {
+    if (status === "betting" && (timeLeft || 0) > 5) {
       return { text: "Betting Open", className: "bg-green-500/20 text-green-400 border-green-500/30" };
+    } else if (status === "betting" && (timeLeft || 0) <= 5 && (timeLeft || 0) > 0) {
+      return { text: "Wrapping Up", className: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" };
     } else if (status === "closed") {
-      return { text: "Round Closed", className: "bg-red-500/20 text-red-400 border-red-500/30" };
+      return { text: "Processing...", className: "bg-orange-500/20 text-orange-400 border-orange-500/30" };
     } else if (status === "finished") {
       return { text: "Round Finished", className: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
     }
@@ -24,8 +26,9 @@ export default function Timer({ currentRound, timeLeft }: TimerProps) {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
-  // Calculate progress for circle (30 seconds total)
-  const progress = ((30 - timeLeft) / 30) * 283; // 283 is approximate circumference
+  // Calculate progress for circle (30 seconds total, but show full cycle)
+  const totalTime = 30;
+  const progress = ((totalTime - timeLeft) / totalTime) * 283; // 283 is approximate circumference
 
   return (
     <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-electric-blue/30 p-8 text-center">
@@ -45,7 +48,9 @@ export default function Timer({ currentRound, timeLeft }: TimerProps) {
             {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
           </span>
         </div>
-        <p className="text-gray-400 text-sm">Time remaining to place bets</p>
+        <p className="text-gray-400 text-sm">
+          {timeLeft > 5 ? "Time remaining to place bets" : timeLeft > 0 ? "Finalizing transactions..." : "Processing results..."}
+        </p>
         
         {/* Progress circle */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
