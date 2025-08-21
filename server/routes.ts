@@ -60,6 +60,11 @@ async function startGameLoop() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database storage
+  if ('initialize' in storage) {
+    await (storage as any).initialize();
+  }
+  
   // Start game loop
   startGameLoop();
 
