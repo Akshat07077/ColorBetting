@@ -9,7 +9,7 @@ export default function Timer({ currentRound, timeLeft }: TimerProps) {
   const getStatusConfig = (status?: string, timeLeft?: number) => {
     if (!status) return { text: "Loading...", className: "bg-gray-500/20 text-gray-400 border-gray-500/30" };
     
-    if (status === "betting" && timeLeft > 0) {
+    if (status === "betting" && (timeLeft || 0) > 0) {
       return { text: "Betting Open", className: "bg-green-500/20 text-green-400 border-green-500/30" };
     } else if (status === "closed") {
       return { text: "Round Closed", className: "bg-red-500/20 text-red-400 border-red-500/30" };

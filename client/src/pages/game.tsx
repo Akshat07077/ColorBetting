@@ -6,19 +6,37 @@ import CurrentBets from "@/components/game/current-bets";
 import RecentResults from "@/components/game/recent-results";
 import PlayerStats from "@/components/game/player-stats";
 import ResultModal from "@/components/game/result-modal";
+import { GameRound, User, Bet } from "@shared/schema";
+
+interface GameStateResponse {
+  currentRound: GameRound;
+  timeLeft: number;
+  recentRounds: GameRound[];
+}
+
+interface UserDataResponse {
+  user: User;
+  stats: {
+    gamesPlayed: number;
+    totalWinnings: number;
+    winRate: number;
+    biggestWin: number;
+    favoriteColor: string;
+  };
+}
 
 export default function GamePage() {
-  const { data: gameState, isLoading: gameLoading } = useQuery({
+  const { data: gameState, isLoading: gameLoading } = useQuery<GameStateResponse>({
     queryKey: ["/api/game/state"],
     refetchInterval: 1000,
   });
 
-  const { data: userData, isLoading: userLoading } = useQuery({
+  const { data: userData, isLoading: userLoading } = useQuery<UserDataResponse>({
     queryKey: ["/api/user"],
     refetchInterval: 5000,
   });
 
-  const { data: currentBets, isLoading: betsLoading } = useQuery({
+  const { data: currentBets, isLoading: betsLoading } = useQuery<Bet[]>({
     queryKey: ["/api/user/bets/current"],
     refetchInterval: 2000,
   });

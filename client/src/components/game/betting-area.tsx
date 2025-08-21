@@ -31,8 +31,13 @@ export default function BettingArea({ currentRound, userBalance }: BettingAreaPr
       const userResponse = await apiRequest("GET", "/api/user");
       const userData = await userResponse.json();
       
+      if (!currentRound) {
+        throw new Error("No active round");
+      }
+      
       return apiRequest("POST", "/api/bets", {
         userId: userData.user.id,
+        roundId: currentRound.id,
         color,
         amount: amount.toString(),
       });
