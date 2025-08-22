@@ -1,11 +1,11 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { users, gameRounds, bets, type User, type InsertUser, type GameRound, type Bet, type InsertBet, type Color, COLORS } from "@shared/schema";
-import { eq, desc, and, or, isNotNull } from "drizzle-orm";
+import { eq, desc, and, or, isNotNull, sql } from "drizzle-orm";
 import { IStorage } from "./storage";
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+const connection = neon(process.env.DATABASE_URL!);
+const db = drizzle(connection);
 
 export class DatabaseStorage implements IStorage {
   async initialize(): Promise<void> {
