@@ -44,12 +44,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRound(): Promise<GameRound> {
-    // Get the highest ID to increment manually
-    const lastRound = await db.select().from(gameRounds).orderBy(desc(gameRounds.id)).limit(1);
-    const nextId = lastRound.length > 0 ? lastRound[0].id + 1 : 1001;
-    
     const result = await db.insert(gameRounds).values({
-      id: nextId,
       status: "betting",
       winningColor: null,
       startTime: new Date(),
