@@ -67,8 +67,8 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   
-  // Use localhost for local development, 0.0.0.0 for production
-  const host = process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0';
+  // Use IPv4 localhost for local development, 0.0.0.0 for production
+  const host = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
   
   server.listen({
     port,
