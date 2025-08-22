@@ -79,3 +79,16 @@ Preferred communication style: Simple, everyday language.
 - **date-fns**: Date manipulation and formatting
 - **wouter**: Lightweight routing library
 - **cmdk**: Command palette component for enhanced UX
+
+## Recent Changes
+
+*Last updated: August 22, 2025*
+
+- ✅ Fixed Windows compatibility issues with cross-env and localhost binding (127.0.0.1)
+- ✅ Resolved database ID conflicts and game loop synchronization issues
+- ✅ Implemented proper getCurrentRound prioritization for active rounds
+- ✅ Added game initialization logic to ensure betting rounds always exist
+- ✅ Cleaned up database inconsistencies and duplicate rounds
+- ✅ Configured dotenv for local environment variable loading
+- ✅ Both Replit and local Windows environments fully operational
+- ✅ Database cleaned with single active betting round for local use
