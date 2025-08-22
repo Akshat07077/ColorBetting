@@ -67,14 +67,19 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   
-  // Use IPv4 localhost for local development, 0.0.0.0 for production
-  const host = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
-  
-  server.listen({
-    port,
-    host,
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  if (process.env.NODE_ENV === 'development') {
+    // Simple listen for Windows compatibility
+    server.listen(port, () => {
+      log(`serving on port ${port}`);
+    });
+  } else {
+    // Production configuration
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`serving on port ${port}`);
+    });
+  }
 })();
