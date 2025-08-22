@@ -11,7 +11,7 @@ export const users = pgTable("users", {
 });
 
 export const gameRounds = pgTable("game_rounds", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey(),
   status: text("status").notNull(), // "betting", "closed", "finished"
   winningColor: text("winning_color"), // "red", "green", "blue", "purple", "orange"
   startTime: timestamp("start_time").notNull(),
