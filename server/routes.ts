@@ -5,13 +5,20 @@ import { insertBetSchema, COLORS } from "@shared/schema";
 import { z } from "zod";
 
 let gameInterval: NodeJS.Timeout | null = null;
+let isProcessingRound = false;
 
 async function startGameLoop() {
-  // Create initial round
-  await storage.createRound();
+  // Clear any existing interval first
+  if (gameInterval) {
+    clearInterval(gameInterval);
+    gameInterval = null;
+  }
 
   gameInterval = setInterval(async () => {
     try {
+      // Prevent multiple simultaneous round processing
+      if (isProcessingRound) return;
+      
       const currentRound = await storage.getCurrentRound();
       if (!currentRound) return;
 
@@ -22,39 +29,52 @@ async function startGameLoop() {
         const elapsed = (now.getTime() - startTime.getTime()) / 1000;
 
         if (elapsed >= 25) {
+          isProcessingRound = true;
           await storage.updateRoundStatus(currentRound.id, "closed");
           
           // Determine winner after 3 seconds
           setTimeout(async () => {
-            const winningColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-            await storage.updateRoundStatus(currentRound.id, "finished", winningColor);
-            
-            // Process bets
-            const roundBets = await storage.getRoundBets(currentRound.id);
-            for (const bet of roundBets) {
-              const isWinner = bet.color === winningColor;
-              const winAmount = isWinner ? parseFloat(bet.amount) * 2 : 0;
+            try {
+              const winningColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+              await storage.updateRoundStatus(currentRound.id, "finished", winningColor);
               
-              await storage.updateBetResult(bet.id, isWinner, winAmount);
-              
-              // Update user balance
-              const user = await storage.getUser(bet.userId);
-              if (user) {
-                const currentBalance = parseFloat(user.balance);
-                const balanceChange = isWinner ? winAmount - parseFloat(bet.amount) : -parseFloat(bet.amount);
-                await storage.updateUserBalance(bet.userId, currentBalance + balanceChange);
+              // Process bets
+              const roundBets = await storage.getRoundBets(currentRound.id);
+              for (const bet of roundBets) {
+                const isWinner = bet.color === winningColor;
+                const winAmount = isWinner ? parseFloat(bet.amount) * 2 : 0;
+                
+                await storage.updateBetResult(bet.id, isWinner, winAmount);
+                
+                // Update user balance
+                const user = await storage.getUser(bet.userId);
+                if (user) {
+                  const currentBalance = parseFloat(user.balance);
+                  const balanceChange = isWinner ? winAmount - parseFloat(bet.amount) : -parseFloat(bet.amount);
+                  await storage.updateUserBalance(bet.userId, currentBalance + balanceChange);
+                }
               }
+              
+              // Create new round after 2 seconds
+              setTimeout(async () => {
+                try {
+                  await storage.createRound();
+                } catch (error) {
+                  console.error("Error creating new round:", error);
+                } finally {
+                  isProcessingRound = false;
+                }
+              }, 2000);
+            } catch (error) {
+              console.error("Error finishing round:", error);
+              isProcessingRound = false;
             }
-            
-            // Create new round after 2 seconds
-            setTimeout(async () => {
-              await storage.createRound();
-            }, 2000);
           }, 3000);
         }
       }
     } catch (error) {
       console.error("Game loop error:", error);
+      isProcessingRound = false;
     }
   }, 1000);
 }
@@ -65,14 +85,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await (storage as any).initialize();
   }
   
-  // Ensure there's always a betting round running
+  // Ensure there's always a betting round running  
   const currentRound = await storage.getCurrentRound();
   if (!currentRound || currentRound.status === "finished") {
     await storage.createRound();
     console.log("Created initial betting round");
   }
   
-  // Start game loop
+  // Start game loop (don't create extra round)
   startGameLoop();
 
   // Get current game state
