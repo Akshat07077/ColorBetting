@@ -65,6 +65,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await (storage as any).initialize();
   }
   
+  // Ensure there's always a betting round running
+  const currentRound = await storage.getCurrentRound();
+  if (!currentRound || currentRound.status === "finished") {
+    await storage.createRound();
+    console.log("Created initial betting round");
+  }
+  
   // Start game loop
   startGameLoop();
 

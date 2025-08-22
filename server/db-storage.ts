@@ -39,6 +39,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCurrentRound(): Promise<GameRound | undefined> {
+    // First try to get an active betting round
+    const bettingRound = await db.select().from(gameRounds)
+      .where(or(eq(gameRounds.status, "betting"), eq(gameRounds.status, "closed")))
+      .orderBy(desc(gameRounds.id))
+      .limit(1);
+    
+    if (bettingRound.length > 0) {
+      return bettingRound[0];
+    }
+    
+    // If no active round, get the latest finished round
     const result = await db.select().from(gameRounds).orderBy(desc(gameRounds.id)).limit(1);
     return result[0];
   }
